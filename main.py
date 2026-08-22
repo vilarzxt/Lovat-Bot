@@ -3,6 +3,8 @@ from discord.ext import commands
 import os
 import asyncio
 
+from dotenv import load_dotenv
+load_dotenv()
 from config.settings import PREFIX, GUILD_ID
 
 from systems.views import (
