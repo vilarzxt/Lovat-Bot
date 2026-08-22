@@ -1,18 +1,17 @@
 # =========================
 # 🧠 IDENTIDADE DO BOT
-# CONEXÃO ROLEPLAY
-# V1.3.2
+# LOVAT BOT
 # =========================
 
-PROJECT_NAME = "Conexão Roleplay"
+PROJECT_NAME = "Lovat Bot"
 
-VERSION_NAME = "V1.3.2"
+VERSION_NAME = "V0.0.1"
 
 VERSION_DESCRIPTION = (
     "Sistema operacional de tickets + "
-    "dropdowns contextuais + "
-    "roteamento dinâmico + "
-    "estabilidade estrutural"
+    "moderação + "
+    "utilidades + "
+    "social"
 )
 
 VERSION_FULL = (
@@ -24,7 +23,7 @@ VERSION_FULL = (
 # 🌐 IDS DO DISCORD
 # =========================
 
-GUILD_ID = 1465461083757351061
+GUILD_ID = 1486383328859787515
 
 # =========================
 # ⚙️ COMPORTAMENTO DO BOT

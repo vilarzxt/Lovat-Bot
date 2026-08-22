@@ -7,6 +7,8 @@ from discord.ui import (
 )
 
 from systems.permissions import is_ticket_staff
+from systems.utils import create_embed
+from config.assets import ASSETS
 
 # =========================
 # 🔐 STAFF CHECK HELPER
@@ -25,7 +27,6 @@ def is_staff(interaction: discord.Interaction) -> bool:
 
 # =========================
 # 🎫 TICKET CATEGORY SELECT
-# V1.3.2.13
 # =========================
 
 class TicketCategorySelect(Select):
@@ -115,7 +116,7 @@ class TicketCategorySelect(Select):
 
         category = self.values[0]
 
-        embed = discord.Embed(
+        embed = create_embed(
 
             title="📂 Categoria Selecionada",
 
@@ -126,7 +127,9 @@ class TicketCategorySelect(Select):
                 "subcategoria do atendimento."
             ),
 
-            color=discord.Color.blurple()
+            color=discord.Color.blurple(),
+
+            image=ASSETS["banner_ticket"]
         )
 
         await interaction.response.send_message(
@@ -302,7 +305,7 @@ class CloseTicketButton(Button):
                 ephemeral=True
             )
 
-        embed = discord.Embed(
+        embed = create_embed(
 
             title="🔒 | Fechar Ticket",
 
@@ -321,7 +324,9 @@ class CloseTicketButton(Button):
                 "motivo personalizado"
             ),
 
-            color=discord.Color.red()
+            color=discord.Color.red(),
+
+            image=ASSETS["banner_ticket"]
         )
 
         await interaction.response.send_message(
@@ -415,7 +420,7 @@ class ConfigTicketButton(Button):
                 ephemeral=True
             )
 
-        embed = discord.Embed(
+        embed = create_embed(
 
             title="⚙️ | Configurações do Ticket",
 
@@ -425,7 +430,9 @@ class ConfigTicketButton(Button):
                 "abaixo para começar:"
             ),
 
-            color=discord.Color.blurple()
+            color=discord.Color.blurple(),
+
+            image=ASSETS["banner_ticket"]
         )
 
         await interaction.response.send_message(
@@ -535,7 +542,7 @@ class TicketConfigSelect(Select):
 
             from systems.dropdowns import TicketAutoCloseView
 
-            embed = discord.Embed(
+            embed = create_embed(
 
                 title="⏰ | Configurar Fechamento Automático",
 
@@ -555,7 +562,9 @@ class TicketConfigSelect(Select):
                     "o fechamento automático"
                 ),
 
-                color=discord.Color.orange()
+                color=discord.Color.orange(),
+
+                image=ASSETS["banner_ticket"]
             )
 
             return await interaction.response.send_message(
@@ -687,3 +696,4 @@ class TicketManagementView(View):
         self.add_item(
             ConfigTicketButton()
         )
+

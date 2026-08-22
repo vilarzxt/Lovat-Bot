@@ -1,6 +1,6 @@
 # =========================
 # 🧭 TICKET ROUTER ENGINE
-# V1.3.2 - PRODUCTION LEVEL
+# LOVAT BOT
 # =========================
 
 import discord
@@ -11,6 +11,13 @@ from systems.permissions import (
     get_user_highest_level
 )
 
+from systems.utils import create_embed
+
+from config.assets import (
+    ASSETS,
+    SUCCESS_COLOR
+)
+
 
 # =========================
 # 🧠 SQUADS (CATEGORIAS INTERNAS)
@@ -18,13 +25,9 @@ from systems.permissions import (
 
 SQUADS = {
 
-    "MONITOR_TEAM": "monitor-team",
-    "SUPERVISOR_TEAM": "supervisor-team",
-    "TECH_TEAM": "tech-team",
-    "COORD_TEAM": "coord-team",
-    "COORD_EXEC_TEAM": "coord-exec-team",
-    "EXEC_TEAM": "exec-team",
-    "DEV_TEAM": "dev-team"
+    "FOUNDER_TEAM": "fundador",
+    "MOD_TEAM": "moderador",
+    "STAFF_TEAM": "staff"
 }
 
 
@@ -55,9 +58,9 @@ class TicketRouter:
         rule = self.resolve_rule(ticket_key)
 
         if not rule:
-            return SQUADS["MONITOR_TEAM"]
+            return SQUADS["STAFF_TEAM"]
 
-        return SQUADS.get(rule["route"], SQUADS["MONITOR_TEAM"])
+        return SQUADS.get(rule["route"], SQUADS["STAFF_TEAM"])
 
 
     # =========================
@@ -129,17 +132,17 @@ class TicketRouter:
 
 
         # =========================
-        # 🔥 EXEC TEAM OVERRIDE
+        # 🔥 FOUNDER OVERRIDE
         # =========================
 
-        exec_role = discord.utils.get(
+        founder_role = discord.utils.get(
             guild.roles,
-            name="exec-team"
+            name=SQUADS["FOUNDER_TEAM"]
         )
 
-        if exec_role:
+        if founder_role:
 
-            overwrites[exec_role] = discord.PermissionOverwrite(
+            overwrites[founder_role] = discord.PermissionOverwrite(
                 view_channel=True,
                 send_messages=True,
                 read_message_history=True
@@ -163,14 +166,15 @@ class TicketRouter:
         # =========================
 
         await channel.send(
-            embed=discord.Embed(
+            embed=create_embed(
                 title="🎫 Ticket Aberto",
                 description=(
                     f"**Categoria:** `{ticket_key}`\n"
                     f"**Responsável inicial:** {interaction.user.mention}\n"
                     f"**Squad designado:** `{squad}`"
                 ),
-                color=0x2ECC71
+                color=SUCCESS_COLOR,
+                image=ASSETS["banner_ticket"]
             )
         )
 
@@ -204,12 +208,12 @@ class TicketRouter:
 
         if not rule:
             return {
-                "squad": SQUADS["MONITOR_TEAM"],
+                "squad": SQUADS["STAFF_TEAM"],
                 "min_level": 0
             }
 
         return {
-            "squad": SQUADS.get(rule["route"], SQUADS["MONITOR_TEAM"]),
+            "squad": SQUADS.get(rule["route"], SQUADS["STAFF_TEAM"]),
             "min_level": rule["min_level"]
         }
 
@@ -220,3 +224,4 @@ class TicketRouter:
 
 def setup_router(bot):
     return TicketRouter(bot)
+

@@ -8,13 +8,14 @@ from config.assets import (
 
 # =========================
 # 🎨 EMBED FACTORY
-# V1.3.1
+# LOVAT BOT
 # =========================
 
 def create_embed(
     title: str,
     description: str = None,
-    color: int = EMBED_COLOR
+    color: int = EMBED_COLOR,
+    image: str = None
 ):
 
     embed = discord.Embed(
@@ -26,6 +27,12 @@ def create_embed(
     embed.set_thumbnail(
         url=ASSETS["logo"]
     )
+
+    if image:
+
+        embed.set_image(
+            url=image
+        )
 
     embed.set_footer(
         text=FOOTER_TEXT,

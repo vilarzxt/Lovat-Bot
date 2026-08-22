@@ -1,6 +1,6 @@
 # =========================
 # 🎫 TICKET MANAGER ENGINE
-# V1.3.2.12
+# LOVAT BOT
 # =========================
 
 import discord
@@ -8,6 +8,14 @@ import datetime
 
 from systems.permissions import can_close_ticket
 from systems.transcripts import TranscriptBuilder
+from systems.utils import create_embed
+
+from config.assets import (
+    ASSETS,
+    EMBED_COLOR,
+    SUCCESS_COLOR,
+    ERROR_COLOR
+)
 
 from systems.views import (
     TicketManagementView
@@ -132,7 +140,7 @@ class TicketManager:
         # 📌 OPEN EMBED
         # =========================
 
-        embed = discord.Embed(
+        embed = create_embed(
 
             title="🎫 Ticket Criado",
 
@@ -147,10 +155,12 @@ class TicketManager:
                 f"📌 Subcategoria: `{subcategory}`"
             ),
 
-            color=0x5865F2,
+            color=EMBED_COLOR,
 
-            timestamp=datetime.datetime.utcnow()
+            image=ASSETS["banner_ticket"]
         )
+
+        embed.timestamp = datetime.datetime.utcnow()
 
         embed.add_field(
 
@@ -164,10 +174,6 @@ class TicketManager:
             ),
 
             inline=False
-        )
-
-        embed.set_footer(
-            text="Conexão Roleplay • Sistema de Tickets"
         )
 
         # =========================
@@ -289,14 +295,14 @@ class TicketManager:
         # 📌 FEEDBACK EMBED
         # =========================
 
-        embed = discord.Embed(
+        embed = create_embed(
 
             title="🔒 Ticket Encerrado",
 
-            color=0xE74C3C,
-
-            timestamp=datetime.datetime.utcnow()
+            color=ERROR_COLOR
         )
+
+        embed.timestamp = datetime.datetime.utcnow()
 
         embed.add_field(
             name="👤 Fechado por",
@@ -318,26 +324,27 @@ class TicketManager:
 
             try:
 
+                dm_embed = create_embed(
+
+                    title="📨 Seu ticket foi encerrado",
+
+                    description=(
+
+                        f"Seu atendimento em "
+                        f"`{channel.name}` "
+                        f"foi finalizado.\n\n"
+
+                        f"📌 Motivo: {reason}\n\n"
+
+                        "Agradecemos por utilizar "
+                        "nossa central de atendimento!"
+                    ),
+
+                    color=SUCCESS_COLOR
+                )
+
                 await owner.send(
-
-                    embed=discord.Embed(
-
-                        title="📨 Seu ticket foi encerrado",
-
-                        description=(
-
-                            f"Seu atendimento em "
-                            f"`{channel.name}` "
-                            f"foi finalizado.\n\n"
-
-                            f"📌 Motivo: {reason}\n\n"
-
-                            "Agradecemos por utilizar "
-                            "nossa central de atendimento!"
-                        ),
-
-                        color=0x2ECC71
-                    )
+                    embed=dm_embed
                 )
 
             except:
@@ -486,3 +493,4 @@ async def change_ticket_category(
 
         new_category=new_category
     )
+

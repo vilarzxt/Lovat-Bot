@@ -5,20 +5,20 @@ from discord import app_commands
 
 from config.settings import (
     VERSION_NAME,
-    VERSION_DESCRIPTION
+    VERSION_DESCRIPTION,
+    PROJECT_NAME
 )
 
 from config.assets import (
     ASSETS,
-    EMBED_COLOR,
-    PROJECT_NAME
+    EMBED_COLOR
 )
 
 from systems.utils import create_embed
 
 # =========================
 # 📦 INFO COMMAND
-# V1.3.1
+# LOVAT BOT
 # =========================
 
 @app_commands.command(
@@ -30,7 +30,7 @@ async def info(
 ):
 
     embed = create_embed(
-        title="📦 Sistema Conexão Roleplay",
+        title="📦 Lovat Bot",
         color=EMBED_COLOR
     )
 
@@ -51,7 +51,7 @@ async def info(
 
     embed.add_field(
         name="🧠 Arquitetura",
-        value="Sistema modular V1.3.1",
+        value="Sistema modular",
         inline=False
     )
 
