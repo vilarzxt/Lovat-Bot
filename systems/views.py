@@ -27,6 +27,7 @@ def is_staff(interaction: discord.Interaction) -> bool:
 
 # =========================
 # 🎫 TICKET CATEGORY SELECT
+# LOVAT BOT
 # =========================
 
 class TicketCategorySelect(Select):
@@ -36,53 +37,53 @@ class TicketCategorySelect(Select):
         options = [
 
             discord.SelectOption(
-                label="Central de Denúncias",
+                label="Suporte Geral",
                 description=(
-                    "Denúncias contra players, "
-                    "staff ou organizações."
+                    "Ajuda geral, problemas "
+                    "ou d\u00favidas com o bot."
                 ),
-                emoji="🚨",
-                value="denuncias"
+                emoji="\U0001f6e0\ufe0f",
+                value="suporte_geral"
             ),
 
             discord.SelectOption(
-                label="Dúvidas e Reportes",
+                label="D\u00favidas",
                 description=(
-                    "Dúvidas gerais, bugs "
-                    "e suporte técnico."
+                    "D\u00favidas gerais sobre "
+                    "o servidor ou o bot."
                 ),
-                emoji="❓",
+                emoji="\u2753",
                 value="duvidas"
             ),
 
             discord.SelectOption(
-                label="Central Financeira",
+                label="Sugest\u00f5es",
                 description=(
-                    "VIP, coins e "
-                    "problemas financeiros."
+                    "Envie ideias e sugest\u00f5es "
+                    "de melhorias."
                 ),
-                emoji="💰",
-                value="financeiro"
+                emoji="\U0001f4a1",
+                value="sugestoes"
             ),
 
             discord.SelectOption(
-                label="Central de Organizações",
+                label="Den\u00fancia/Report",
                 description=(
-                    "Suporte operacional "
-                    "de organizações."
+                    "Denuncie players ou "
+                    "comportamentos indevidos."
                 ),
-                emoji="🏢",
-                value="organizacoes"
+                emoji="\U0001f6a8",
+                value="denuncia_report"
             ),
 
             discord.SelectOption(
-                label="Central de Parceiros",
+                label="Financeiro/Colabora\u00e7\u00e3o",
                 description=(
-                    "Parcerias, criadores "
-                    "e projetos."
+                    "Assuntos financeiros ou "
+                    "de colabora\u00e7\u00e3o com a equipe."
                 ),
-                emoji="🤝",
-                value="parcerias"
+                emoji="\U0001f4b0",
+                value="financeiro_colaboracao"
             )
         ]
 

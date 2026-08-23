@@ -22,7 +22,7 @@ from systems.views import (
 
 # =========================
 # 🎫 TICKET COMMAND
-# V1.3.2.9
+# LOVAT BOT
 # =========================
 
 @app_commands.command(
@@ -58,7 +58,7 @@ async def ticket(
         description=(
 
             "Bem-vindo à Central de Atendimento "
-            "da Conexão Roleplay.\n\n"
+            "do Lovat Bot.\n\n"
 
             "Selecione abaixo a categoria "
             "do seu atendimento."
@@ -77,11 +77,11 @@ async def ticket(
 
         value=(
 
-            "🚨 Denúncias\n"
+            "🛠️ Suporte Geral\n"
             "❓ Dúvidas\n"
-            "💰 Financeiro\n"
-            "🏢 Organizações\n"
-            "🤝 Parcerias"
+            "💡 Sugestões\n"
+            "🚨 Denúncia/Report\n"
+            "💰 Financeiro/Colaboração"
         ),
 
         inline=False
@@ -125,3 +125,4 @@ async def ticket(
 async def setup(bot: commands.Bot):
 
     bot.tree.add_command(ticket)
+
