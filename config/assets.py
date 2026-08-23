@@ -10,26 +10,32 @@ ASSETS = {
     # =========================
 
     "banner_institucional":
-    "https://placehold.co/1000x400/7B2FF7/FFFFFF?text=Lovat+Bot",
-
-    "banner_global":
-    "https://placehold.co/1000x400/7B2FF7/FFFFFF?text=Lovat+Bot",
+    "https://i.postimg.cc/15W3k18f/file-000000004ff0820e922df6c278d3e24f.png",
 
     "banner_ticket":
-    "https://placehold.co/1000x400/7B2FF7/FFFFFF?text=Lovat+Bot",
+    "https://i.postimg.cc/zXDf2GGy/05-lovat-ticket-chat-visivel.png",
+
+    "banner_moderacao":
+    "https://i.postimg.cc/ZKqTFswB/01-lovat-seguranca-shield.png",
+
+    "banner_anuncio":
+    "https://i.postimg.cc/28j59SSv/02-lovat-anuncios-megafone.png",
+
+    "banner_utilidades":
+    "https://i.postimg.cc/Wbp4Y11D/03-lovat-configuracoes-gear.png",
 
     "banner_admin":
-    "https://placehold.co/1000x400/7B2FF7/FFFFFF?text=Lovat+Bot",
+    "https://i.postimg.cc/KvcYp883/04-lovat-dashboard-monitor.png",
 
     # =========================
     # 🧠 LOGOS
     # =========================
 
     "logo":
-    "https://placehold.co/500x500/7B2FF7/FFFFFF?text=Lovat",
+    "https://i.postimg.cc/hPCtkRXX/file-00000000ed30820e8955ea68dffebbbd.png",
 
     "logo_historica":
-    "https://placehold.co/500x500/7B2FF7/FFFFFF?text=Lovat"
+    "https://i.postimg.cc/025NXyyr/06-lovat-avatar-star.png"
 }
 
 # =========================
@@ -53,3 +59,4 @@ FOOTER_TEXT = (
 TICKET_FOOTER = (
     "Lovat Bot — by Bielzxtzn"
 )
+
