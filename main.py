@@ -52,6 +52,7 @@ class BotClient(commands.Bot):
         "commands.status",
         "commands.ticket",
         "commands.ticket_config",
+        "commands.config",
         "commands.embed",
         "commands.anuncio",
         "commands.regras",

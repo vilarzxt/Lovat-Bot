@@ -8,6 +8,7 @@ from copy import deepcopy
 
 DEFAULT_GUILD_CONFIG = {
     "prefix": "!",
+    "log_channel_id": None,
     "role_levels": {
         "staff": 0,
         "moderador": 1,
