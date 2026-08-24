@@ -5,7 +5,7 @@ import asyncio
 
 from dotenv import load_dotenv
 load_dotenv()
-from config.settings import PREFIX, GUILD_ID
+from config.settings import PREFIX
 
 from systems.views import (
     TicketPanelView,
@@ -24,7 +24,6 @@ intents.message_content = True
 
 # =========================
 # 🤖 BOT CORE
-# V1.3.2.9
 # =========================
 
 class BotClient(commands.Bot):
@@ -52,6 +51,7 @@ class BotClient(commands.Bot):
         "commands.info",
         "commands.status",
         "commands.ticket",
+        "commands.ticket_config",
         "commands.embed",
         "commands.anuncio",
         "commands.regras",
@@ -113,32 +113,15 @@ class BotClient(commands.Bot):
 
         try:
 
-            guild = discord.Object(
-                id=GUILD_ID
-            )
-
             # =========================
             # 🌍 GLOBAL SYNC
             # =========================
 
             global_sync = await self.tree.sync()
 
-            # =========================
-            # 🏠 GUILD SYNC
-            # =========================
-
-            guild_sync = await self.tree.sync(
-                guild=guild
-            )
-
             print(
                 f"🌍 GLOBAL SYNC: "
-                f"{len(global_sync)}"
-            )
-
-            print(
-                f"🏠 GUILD SYNC: "
-                f"{len(guild_sync)}"
+                f"{len(global_sync)} comandos sincronizados"
             )
 
         except Exception as e:

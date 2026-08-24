@@ -20,19 +20,12 @@ VERSION_FULL = (
 )
 
 # =========================
-# 🌐 IDS DO DISCORD
-# =========================
-
-GUILD_ID = 1486383328859787515
-
-# =========================
 # ⚙️ COMPORTAMENTO DO BOT
 # =========================
 
 PREFIX = "!"
 
 SYNC_GLOBAL = True
-SYNC_GUILD = True
 
 # =========================
 # 🎫 CONFIGURAÇÕES DE TICKETS

@@ -14,6 +14,7 @@ from config.settings import (
     TICKET_SYSTEM_ENABLED
 )
 
+from config.guild_config import get_ticket_categories
 from systems.utils import create_embed
 
 from systems.views import (
@@ -29,100 +30,58 @@ from systems.views import (
     name="ticket",
     description="Realiza o deploy do painel de tickets"
 )
-
 async def ticket(
     interaction: discord.Interaction
 ):
 
-    # =========================
-    # 🔒 SYSTEM CHECK
-    # =========================
-
     if not TICKET_SYSTEM_ENABLED:
-
         return await interaction.response.send_message(
-
             "❌ O sistema de tickets está desativado.",
-
             ephemeral=True
         )
 
-    # =========================
-    # 🧠 EMBED
-    # =========================
+    guild_id = interaction.guild_id if interaction.guild else None
+    categories = get_ticket_categories(guild_id) if guild_id else {}
+
+    categories_text = ""
+    for key, cat in categories.items():
+        emoji = cat.get("emoji", "📂")
+        label = cat.get("label", key)
+        categories_text += f"{emoji} {label}\n"
+
+    if not categories_text:
+        categories_text = "Nenhuma categoria configurada."
 
     embed = create_embed(
-
         title="🎫 Central Oficial de Atendimento",
-
         description=(
-
-            "Bem-vindo à Central de Atendimento "
-            "do Lovat Bot.\n\n"
-
-            "Selecione abaixo a categoria "
-            "do seu atendimento."
+            "Bem-vindo à Central de Atendimento.\n\n"
+            "Selecione abaixo a categoria do seu atendimento."
         ),
-
         color=EMBED_COLOR
     )
 
-    # =========================
-    # 📂 CATEGORIAS
-    # =========================
-
     embed.add_field(
-
         name="📂 Categorias",
-
-        value=(
-
-            "🛠️ Suporte Geral\n"
-            "❓ Dúvidas\n"
-            "💡 Sugestões\n"
-            "🚨 Denúncia/Report\n"
-            "💰 Financeiro/Colaboração"
-        ),
-
+        value=categories_text,
         inline=False
     )
-
-    # =========================
-    # 🖼️ BANNER
-    # =========================
 
     embed.set_image(
         url=ASSETS["banner_ticket"]
     )
 
-    # =========================
-    # 🏷️ FOOTER
-    # =========================
-
     embed.set_footer(
-
         text=(
             f"{TICKET_FOOTER} • "
             f"{VERSION_NAME}"
         )
     )
 
-    # =========================
-    # 🚀 RESPONSE
-    # =========================
-
     await interaction.response.send_message(
-
         embed=embed,
-
-        view=TicketPanelView()
+        view=TicketPanelView(guild_id=guild_id)
     )
 
-# =========================
-# 🚀 SETUP
-# =========================
-
 async def setup(bot: commands.Bot):
-
     bot.tree.add_command(ticket)
-
