@@ -14,7 +14,7 @@ from config.settings import (
     TICKET_SYSTEM_ENABLED
 )
 
-from config.guild_config import get_ticket_categories
+from config.guild_config import get_panels
 from systems.utils import create_embed
 
 from systems.views import (
@@ -41,13 +41,14 @@ async def ticket(
         )
 
     guild_id = interaction.guild_id if interaction.guild else None
-    categories = get_ticket_categories(guild_id) if guild_id else {}
+    panels = get_panels(guild_id) if guild_id else []
 
     categories_text = ""
-    for key, cat in categories.items():
-        emoji = cat.get("emoji", "📂")
-        label = cat.get("label", key)
-        categories_text += f"{emoji} {label}\n"
+    for panel in panels:
+        for opt in panel.get("options", []):
+            emoji = opt.get("emoji") or "📂"
+            label = opt.get("label", "Opção")
+            categories_text += f"{emoji} {label}\n"
 
     if not categories_text:
         categories_text = "Nenhuma categoria configurada."

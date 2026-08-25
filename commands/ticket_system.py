@@ -463,7 +463,7 @@ class EmbedEditorView(View):
         view = ManageFieldsView(self.guild_id, self.panel_id)
         await interaction.response.edit_message(embed=view.get_embed(), view=view)
 
-    @discord.ui.button(label="Ver Prévia", style=discord.ButtonStyle.info, row=2)
+    @discord.ui.button(label="Ver Prévia", style=discord.ButtonStyle.secondary, row=2)
     async def preview(self, interaction: discord.Interaction, button: Button):
         panel = get_panel(self.guild_id, self.panel_id)
         embed = build_panel_embed(panel["conteudo"])
