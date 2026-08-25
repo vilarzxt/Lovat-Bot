@@ -1,0 +1,113 @@
+CONTEXTO: O Lovat Bot já tem funcionando: /ticket-system (múltiplos painéis), /config (log-canal, boas-vindas, despedida, auto-role, captcha por botão em canal via CaptchaVerifyView), e log_action já existe em commands/config.py (há também um systems/logs.py de uma sessão anterior — verifique os dois antes de criar algo novo, reaproveite o que já funciona e não duplique).
+
+IMPORTANTE: Isso vai rodar sem supervisão por um tempo. Trabalhe em ordem, uma parte de cada vez, e SEMPRE valide sintaxe (python3 -m py_compile) e faça commit descritivo ao final de cada parte concluída, antes de seguir pra próxima. Se travar em uma parte por dependência externa não resolvível agora (ex: música precisa de Lavalink), implemente a estrutura com fallback amigável e AVANCE para a próxima parte — não pare o progresso geral por causa disso. Só pare de verdade e pergunte se a ambiguidade for sobre o QUÊ fazer, não sobre COMO.
+
+REGRAS GERAIS:
+- Preserve a estrutura de pastas: config/, commands/, systems/.
+- Todo código novo tem try/except com log padronizado [MODULE_NAME].
+- Nunca renomeie comandos slash ou custom_ids já existentes.
+- Reaproveite log_action (de commands/config.py) para registrar ações em todas as partes abaixo que mencionam log.
+
+============================================================
+PARTE A — Corrigir destaque visual do Dropdown como recomendado
+============================================================
+Em commands/ticket_system.py, na tela "Escolha o Tipo de Componente" (classe CreatePanelComponentTypeView), os dois botões atualmente usam o mesmo estilo (ButtonStyle.primary). Alterar para que o botão "Dropdown (Menu de Seleção)" use um estilo visualmente diferenciado do botão "Botão" (ex: manter Dropdown como ButtonStyle.primary e mudar "Botão" para ButtonStyle.secondary), e adicionar ao label do botão Dropdown o sufixo " (Recomendado)" para deixar claro visualmente qual é a opção sugerida, sem impedir a escolha do outro.
+
+============================================================
+PARTE B — Painel padrão pré-criado em servidores novos
+============================================================
+Em config/guild_config.py, DEFAULT_GUILD_CONFIG["ticket_panels"] está vazio ([]). Alterar para que já venha com UM painel padrão de exemplo, totalmente preenchido:
+{
+  "id": 1,
+  "tipo_conteudo": "embed",
+  "tipo_componente": "dropdown",
+  "conteudo": {
+    "title": "Central de Atendimento",
+    "description": "Bem-vindo à nossa Central de Atendimento! Selecione abaixo a categoria do seu atendimento e um canal privado será criado para você. Nossa equipe responderá o mais rápido possível.",
+    "color": "#3D5A80",
+    "url": None, "timestamp": False,
+    "author": {"name": None, "icon_url": None, "url": None},
+    "thumbnail_url": None, "image_url": None,
+    "footer": {"text": "Sistema de Tickets", "icon_url": None},
+    "fields": []
+  },
+  "options": [
+    {"id": 1, "label": "Suporte Geral", "emoji": "🛠️", "description": "Dúvidas, problemas técnicos ou bugs", "categoria_vinculada": None},
+    {"id": 2, "label": "Comunidade", "emoji": "👥", "description": "Sugestões, feedback ou assuntos da comunidade", "categoria_vinculada": None},
+    {"id": 3, "label": "Parcerias", "emoji": "🤝", "description": "Propostas de parceria ou colaboração", "categoria_vinculada": None},
+    {"id": 4, "label": "Financeiro", "emoji": "💰", "description": "Assuntos relacionados a pagamentos ou cobranças", "categoria_vinculada": None},
+    {"id": 5, "label": "Outros", "emoji": "❓", "description": "Qualquer outro assunto não listado acima", "categoria_vinculada": None}
+  ],
+  "component_settings": {"placeholder": "Selecione o tipo do atendimento", "min_values": 1, "max_values": 1},
+  "channel_id": None, "message_id": None,
+  "settings": {"staff_role_ids": [], "ticket_category_channel_id": None, "mention_role_ids": []}
+}
+IMPORTANTE: Isso deve ser o DEFAULT usado apenas quando um guild_id NUNCA teve arquivo de config salvo antes (primeira vez que get_guild_config roda para aquele servidor). Servidores que já têm config salva (incluindo os que passaram por _migrate_config) NÃO devem ganhar esse painel adicional — só quem está zerado.
+
+============================================================
+PARTE C — Moderação completa
+============================================================
+Adaptar commands/ban.py, commands/kick.py existentes: garantir que são guild-aware (usam systems/permissions.py) e chamam log_action ao final de cada ação com sucesso.
+Criar:
+- commands/mute.py — /mute @usuario duracao motivo: timeout nativo do Discord (member.timeout()), duracao aceita formatos como "10m", "1h", "1d" (parsear string), motivo opcional. Verifica permissão, chama log_action.
+- commands/unmute.py — /unmute @usuario: remove timeout (member.timeout(None)). Verifica permissão, chama log_action.
+- commands/clear.py — /clear quantidade: bulk delete de mensagens no canal atual, limite máximo de segurança 100. Verifica permissão, chama log_action com quantidade removida.
+- commands/historico.py — /historico @usuario: busca registros de log_action relacionados a esse usuário (adaptar a função de leitura do log conforme o formato já salvo por log_action em commands/config.py) e exibe em embed paginado ou lista simples (últimos 10-20 registros).
+- systems/anti_invite.py — listener on_message: detecta links de convite do Discord via regex (discord.gg/, discordapp.com/invite/), se o autor não for staff (checar via systems/permissions.py) apaga a mensagem e chama log_action com tipo "Anti-Invite".
+Registrar o listener de anti_invite no bot (main.py ou onde os outros listeners já são registrados).
+
+============================================================
+PARTE D — Economia base
+============================================================
+Criar systems/economy.py: persistência em data/guilds/{guild_id}/economy.json (dict user_id -> {"saldo": 0, "ultimo_daily": None}). Funções: get_saldo(guild_id, user_id), add_saldo(guild_id, user_id, valor), remove_saldo(guild_id, user_id, valor), get_ultimo_daily/set_ultimo_daily.
+Criar commands/:
+- saldo.py — /saldo [usuario opcional]: mostra saldo.
+- daily.py — /daily: recompensa fixa (100 moedas, valor pode ser constante no topo do arquivo), cooldown 24h checado via ultimo_daily.
+- apostar.py — /apostar valor: valida saldo suficiente, 50% chance de dobrar, 50% chance de perder o valor apostado.
+- raspadinha.py — /raspadinha: custo fixo (20 moedas), sorteio: 70% chance de 0, 20% chance de ganhar 2x o custo, 10% chance de ganhar 5x o custo.
+
+============================================================
+PARTE E — Social/XP base
+============================================================
+Criar systems/social.py: persistência em data/guilds/{guild_id}/social.json (dict user_id -> {"xp": 0, "nivel": 1, "ultima_mensagem": None, "bio": "", "reputacao": 0}).
+Listener on_message: concede XP aleatório (5-15) por mensagem, respeitando cooldown de 60s (comparar timestamp de ultima_mensagem), ignora bots e mensagens que começam com "/" ou prefixo de comando. Fórmula de nível: nivel = int((xp / 50) ** 0.5) + 1 (ou similar, documentar a fórmula usada). Ao subir de nível, enviar mensagem simples opcional no canal (pode ser sempre ativo nesta fase, sem toggle).
+Criar commands/:
+- perfil.py — /perfil [usuario opcional]: embed mostrando XP, nível, saldo (integrar com systems/economy.py), bio e reputação.
+- rank.py — /rank: top 10 usuários do servidor por XP em embed.
+- perfil-editar.py (ou subcomando dentro de perfil.py) — /perfil-editar bio:texto: define bio (máx 200 caracteres).
+- rep.py — /rep @usuario: +1 de reputação ao alvo, cooldown 24h por par usuário-alvo, não permite dar a si mesmo.
+
+============================================================
+PARTE F — Diversão
+============================================================
+Criar commands/fun.py com os seguintes comandos (respostas públicas, ephemeral=False):
+- /avatar [usuario opcional] — mostra avatar em tamanho grande.
+- /enquete pergunta opcao1 opcao2 [opcao3] [opcao4] — embed com reações numeradas (1️⃣2️⃣3️⃣4️⃣) correspondentes às opções fornecidas.
+- /moeda — cara ou coroa aleatório.
+- /dado [lados=6] — rola dado com N lados (padrão 6).
+- /ship usuario1 usuario2 — porcentagem de compatibilidade aleatória (0-100%) com frase de resultado bem-humorada e não ofensiva.
+- /8ball pergunta — resposta aleatória de uma lista de frases estilo bola 8 mágica (sim/não/talvez/pergunte depois etc).
+
+============================================================
+PARTE G — Utilidades
+============================================================
+Criar commands/utilidades.py:
+- /serverinfo — embed com nome, ID, dono, data de criação, contagem de membros e canais do servidor.
+- /userinfo [usuario opcional] — embed com nome, ID, data de criação da conta, data que entrou no servidor, cargos.
+- /calcular expressao — calculadora simples suportando +,-,*,/ e parênteses. NUNCA usar eval() direto sem sanitização: validar que a expressão contém apenas dígitos, espaços, e os caracteres + - * / ( ) . antes de avaliar, ou usar uma biblioteca seria seura tipo o módulo ast para parsear com segurança.
+- /lembrete tempo mensagem — cria lembrete em memória (sem persistência em banco, documentar essa limitação no commit — lembretes se perdem se o bot reiniciar) usando asyncio.create_task com asyncio.sleep, aceitando formatos "10m", "2h", etc. Ao expirar, menciona o usuário no canal onde o comando foi usado com a mensagem definida.
+
+============================================================
+PARTE H — Sistema de música (estrutura básica, sem Lavalink configurado)
+============================================================
+Criar commands/musica.py com os comandos /tocar url_ou_nome, /pausar, /pular, /parar, /fila. Se não houver conexão de voz/Lavalink disponível em runtime (o que é o caso agora), cada comando deve responder de forma amigável: "🎵 Sistema de música ainda não configurado neste servidor — fale com o desenvolvedor." em vez de dar erro cru. Adicionar discord.py[voice] ou wavelink ao requirements.txt como comentário indicando que é necessário para ativar essa função futuramente (não instalar/rodar Lavalink agora).
+
+============================================================
+VERIFICAÇÃO FINAL (rodar ao terminar TODAS as partes)
+============================================================
+- python3 -m py_compile em todos os arquivos criados/alterados.
+- Confirmar que nenhum comando slash duplica nome com os já existentes (ex: verificar se já existe /rep, /perfil, etc antes de registrar).
+- Confirmar que DEFAULT_GUILD_CONFIG com o novo campo "ticket_panels" preenchido não quebra servidores já existentes (que passam por _migrate_config).
+- Resumo final: listar todos os arquivos criados/modificados por parte (A a H), indicando o que já existia (pulado) vs o que foi criado agora, e quaisquer partes que ficaram incompletas com o motivo.
+
+Golden rule: só pare para perguntar se a ambiguidade for sobre O QUE fazer (não sobre como implementar tecnicamente) — nesses casos, escolha a interpretação mais razoável, documente a escolha no commit, e continue.
