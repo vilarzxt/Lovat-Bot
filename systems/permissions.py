@@ -4,7 +4,7 @@
 # =========================
 
 from typing import List
-from config.guild_config import get_role_levels, get_ticket_categories
+from config.guild_config import get_role_levels
 
 def resolve_role(role_name: str) -> str:
     return role_name.lower()
@@ -21,22 +21,14 @@ def get_user_highest_level(guild_id: int, roles: List[str]) -> int:
     levels = [get_role_level(guild_id, r) for r in roles]
     return max(levels, default=-1)
 
-def can_access_ticket(guild_id: int, user_roles: List[str], category_key: str) -> bool:
-    categories = get_ticket_categories(guild_id)
-    category = categories.get(category_key)
-
-    if not category:
-        return False
-
+def can_access_ticket(guild_id: int, user_roles: List[str], category_key: str = "generic") -> bool:
     resolved = resolve_roles(user_roles)
 
     if "fundador" in resolved:
         return True
 
     user_level = get_user_highest_level(guild_id, user_roles)
-    min_level = category.get("min_level", 0)
-
-    return user_level >= min_level
+    return user_level >= 0
 
 def can_close_ticket(guild_id: int, user_roles: List[str], category_key: str = "generic") -> bool:
     resolved = resolve_roles(user_roles)
