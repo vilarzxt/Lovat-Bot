@@ -9,9 +9,9 @@ from config.settings import PREFIX
 
 from systems.views import (
     TicketPanelView,
-    TicketManagementView
+    TicketManagementView,
+    DynamicPanelPublicView
 )
-
 
 # =========================
 # 🤖 INTENTS
@@ -20,7 +20,6 @@ from systems.views import (
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-
 
 # =========================
 # 🤖 BOT CORE
@@ -31,11 +30,8 @@ class BotClient(commands.Bot):
     def __init__(self):
 
         super().__init__(
-
             command_prefix=PREFIX,
-
             intents=intents,
-
             help_command=None
         )
 
@@ -46,12 +42,11 @@ class BotClient(commands.Bot):
     # =========================
 
     COMMAND_FILES = [
-
         "commands.ping",
         "commands.info",
         "commands.status",
         "commands.ticket",
-        "commands.ticket_config",
+        "commands.ticket_system",
         "commands.config",
         "commands.embed",
         "commands.anuncio",
@@ -75,20 +70,17 @@ class BotClient(commands.Bot):
         for command in self.COMMAND_FILES:
 
             try:
-
                 module = __import__(
                     command,
                     fromlist=["setup"]
                 )
 
                 if hasattr(module, "setup"):
-
                     await module.setup(self)
 
                 print(f"[OK] {command}")
 
             except Exception as e:
-
                 print(f"[ERRO] {command}")
                 print(e)
 
@@ -109,11 +101,11 @@ class BotClient(commands.Bot):
 
         self.add_view(TicketPanelView())
         self.add_view(TicketManagementView())
+        self.add_view(DynamicPanelPublicView())
 
         print("🎫 PERSISTENT VIEWS LOADED")
 
         try:
-
             # =========================
             # 🌍 GLOBAL SYNC
             # =========================
@@ -126,7 +118,6 @@ class BotClient(commands.Bot):
             )
 
         except Exception as e:
-
             print("❌ SYNC ERROR:")
             print(e)
 

@@ -11,10 +11,14 @@ from systems.transcripts import TranscriptBuilder
 from systems.utils import create_embed
 
 from config.assets import (
-    ASSETS,
     EMBED_COLOR,
     SUCCESS_COLOR,
     ERROR_COLOR
+)
+
+from config.guild_config import (
+    get_panel,
+    get_global_ticket_settings
 )
 
 from systems.views import (
@@ -39,15 +43,39 @@ class TicketManager:
         self,
         interaction: discord.Interaction,
         category: str,
-        subcategory: str
+        subcategory: str,
+        panel_id: int = None
     ):
         guild = interaction.guild
         user = interaction.user
 
-        category_channel = discord.utils.get(
-            guild.categories,
-            name="TICKETS"
-        )
+        # Obter configurações do painel e fallback global
+        panel = get_panel(guild.id, panel_id) if panel_id else None
+        glob_settings = get_global_ticket_settings(guild.id)
+
+        target_category_id = None
+        staff_roles = []
+        mentions = []
+
+        if panel:
+            ps = panel.get("settings", {})
+            target_category_id = ps.get("ticket_category_channel_id") or glob_settings.get("ticket_category_channel_id")
+            staff_roles = ps.get("staff_role_ids") or glob_settings.get("staff_role_ids", [])
+            mentions = ps.get("mention_role_ids") or glob_settings.get("mention_role_ids", [])
+        else:
+            target_category_id = glob_settings.get("ticket_category_channel_id")
+            staff_roles = glob_settings.get("staff_role_ids", [])
+            mentions = glob_settings.get("mention_role_ids", [])
+
+        category_channel = None
+        if target_category_id:
+            category_channel = guild.get_channel(target_category_id)
+
+        if not category_channel:
+            category_channel = discord.utils.get(
+                guild.categories,
+                name="TICKETS"
+            )
 
         if not category_channel:
             category_channel = await guild.create_category(
@@ -83,6 +111,18 @@ class TicketManager:
             )
         }
 
+        # Conceder permissão aos cargos de staff configurados
+        for rid in staff_roles:
+            role = guild.get_role(rid)
+            if role:
+                overwrites[role] = discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=True,
+                    read_message_history=True,
+                    attach_files=True,
+                    embed_links=True
+                )
+
         ticket_channel = await guild.create_text_channel(
             name=channel_name,
             category=category_channel,
@@ -102,8 +142,13 @@ class TicketManager:
             category_key=category
         )
 
+        mention_content = f"{user.mention}"
+        if mentions:
+            mention_str = " ".join([f"<@&{m}>" for m in mentions])
+            mention_content += f" {mention_str}"
+
         await ticket_channel.send(
-            content=user.mention,
+            content=mention_content,
             embed=embed,
             view=TicketManagementView()
         )
@@ -205,7 +250,7 @@ class TicketManager:
                     color=SUCCESS_COLOR
                 )
                 await owner.send(embed=dm_embed)
-            except:
+            except Exception:
                 pass
 
         try:
@@ -215,7 +260,7 @@ class TicketManager:
                 user=owner if owner else user
             )
         except Exception as e:
-            print(f"[TRANSCRIPT ERROR] {e}")
+            print(f"[TRANSCRIPT ERROR] {e}", flush=True)
 
         log_channel = discord.utils.get(
             guild.channels,
@@ -248,7 +293,8 @@ def setup_ticket_manager(bot):
 async def create_ticket(
     interaction: discord.Interaction,
     category: str,
-    subcategory: str
+    subcategory: str,
+    panel_id: int = None
 ):
     if not ticket_manager:
         return None
@@ -256,7 +302,8 @@ async def create_ticket(
     return await ticket_manager.create_ticket(
         interaction=interaction,
         category=category,
-        subcategory=subcategory
+        subcategory=subcategory,
+        panel_id=panel_id
     )
 
 async def close_ticket(
