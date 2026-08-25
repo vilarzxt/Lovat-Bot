@@ -15,6 +15,14 @@ DEFAULT_GLOBAL_TICKET_SETTINGS = {
 DEFAULT_GUILD_CONFIG = {
     "prefix": "!",
     "log_channel_id": None,
+    "welcome_channel_id": None,
+    "welcome_message": "Seja bem-vindo(a) ao **{server}**, {mention}! Atualmente estamos com **{count}** membros.",
+    "goodbye_channel_id": None,
+    "goodbye_message": "O usuário **{user}** saiu do servidor **{server}**.",
+    "auto_role_id": None,
+    "captcha_enabled": False,
+    "captcha_role_id": None,
+    "captcha_channel_id": None,
     "role_levels": {
         "staff": 0,
         "moderador": 1,
@@ -36,8 +44,12 @@ def _get_guild_file_path(guild_id: int) -> str:
 
 def _migrate_config(config: dict) -> dict:
     """
-    Migra configurações antigas ('ticket_categories') para o novo formato 'ticket_panels' e 'global_ticket_settings'.
+    Migra configurações antigas para o novo formato.
     """
+    for key, value in DEFAULT_GUILD_CONFIG.items():
+        if key not in config:
+            config[key] = deepcopy(value)
+
     if "global_ticket_settings" not in config:
         config["global_ticket_settings"] = deepcopy(DEFAULT_GLOBAL_TICKET_SETTINGS)
 
