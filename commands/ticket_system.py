@@ -230,11 +230,11 @@ class CreatePanelComponentTypeView(View):
         self.guild_id = guild_id
         self.tipo_conteudo = tipo_conteudo
 
-    @discord.ui.button(label="Dropdown (Menu de Seleção)", style=discord.ButtonStyle.primary, emoji="🔽")
+    @discord.ui.button(label="Dropdown (Menu de Seleção) (Recomendado)", style=discord.ButtonStyle.primary, emoji="🔽")
     async def dropdown_type(self, interaction: discord.Interaction, button: Button):
         await self._finish_create(interaction, "dropdown")
 
-    @discord.ui.button(label="Botão", style=discord.ButtonStyle.primary, emoji="🔘")
+    @discord.ui.button(label="Botão", style=discord.ButtonStyle.secondary, emoji="🔘")
     async def button_type(self, interaction: discord.Interaction, button: Button):
         await self._finish_create(interaction, "botao")
 
@@ -289,7 +289,6 @@ class PanelOptionsMenuView(View):
 
             if val == "content":
                 if panel["tipo_conteudo"] == "mensagem":
-                    # Editar texto simples via Modal
                     modal = SimpleMessageModal(self.guild_id, self.panel_id, panel["conteudo"].get("texto", ""))
                     await interaction.response.send_modal(modal)
                 else:

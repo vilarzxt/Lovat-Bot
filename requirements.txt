@@ -1,3 +1,4 @@
 discord.py
 python-dotenv
 psutil
+# discord.py[voice]  # Descomentar para suporte futuro a áudio/música

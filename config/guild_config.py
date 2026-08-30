@@ -29,7 +29,44 @@ DEFAULT_GUILD_CONFIG = {
         "fundador": 99
     },
     "global_ticket_settings": DEFAULT_GLOBAL_TICKET_SETTINGS,
-    "ticket_panels": []
+    "ticket_panels": [
+        {
+            "id": 1,
+            "tipo_conteudo": "embed",
+            "tipo_componente": "dropdown",
+            "conteudo": {
+                "title": "Central de Atendimento",
+                "description": "Bem-vindo à nossa Central de Atendimento! Selecione abaixo a categoria do seu atendimento e um canal privado será criado para você. Nossa equipe responderá o mais rápido possível.",
+                "color": "#3D5A80",
+                "url": None,
+                "timestamp": False,
+                "author": {"name": None, "icon_url": None, "url": None},
+                "thumbnail_url": None,
+                "image_url": None,
+                "footer": {"text": "Sistema de Tickets", "icon_url": None},
+                "fields": []
+            },
+            "options": [
+                {"id": 1, "label": "Suporte Geral", "emoji": "🛠️", "description": "Dúvidas, problemas técnicos ou bugs", "categoria_vinculada": None},
+                {"id": 2, "label": "Comunidade", "emoji": "👥", "description": "Sugestões, feedback ou assuntos da comunidade", "categoria_vinculada": None},
+                {"id": 3, "label": "Parcerias", "emoji": "🤝", "description": "Propostas de parceria ou colaboração", "categoria_vinculada": None},
+                {"id": 4, "label": "Financeiro", "emoji": "💰", "description": "Assuntos relacionados a pagamentos ou cobranças", "categoria_vinculada": None},
+                {"id": 5, "label": "Outros", "emoji": "❓", "description": "Qualquer outro assunto não listado acima", "categoria_vinculada": None}
+            ],
+            "component_settings": {
+                "placeholder": "Selecione o tipo do atendimento",
+                "min_values": 1,
+                "max_values": 1
+            },
+            "channel_id": None,
+            "message_id": None,
+            "settings": {
+                "staff_role_ids": [],
+                "ticket_category_channel_id": None,
+                "mention_role_ids": []
+            }
+        }
+    ]
 }
 
 DATA_DIR = "data/guilds"
@@ -48,7 +85,10 @@ def _migrate_config(config: dict) -> dict:
     """
     for key, value in DEFAULT_GUILD_CONFIG.items():
         if key not in config:
-            config[key] = deepcopy(value)
+            if key == "ticket_panels":
+                config[key] = []
+            else:
+                config[key] = deepcopy(value)
 
     if "global_ticket_settings" not in config:
         config["global_ticket_settings"] = deepcopy(DEFAULT_GLOBAL_TICKET_SETTINGS)
