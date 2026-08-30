@@ -28,4 +28,21 @@ async def rank(interaction: discord.Interaction):
             return await interaction.response.send_message(embed=embed)
 
         desc = ""
-        for idx, (uid,
+        for idx, (uid, udata) in enumerate(sorted_users, 1):
+            xp = udata.get("xp", 0)
+            lvl = udata.get("nivel", 1)
+            desc += f"**{idx}.** <@{uid}> — Nível `{lvl}` | `{xp}` XP\n"
+
+        embed = create_embed(
+            title="🏆 Ranking de XP — Top 10",
+            description=desc,
+            color=EMBED_COLOR
+        )
+        await interaction.response.send_message(embed=embed)
+    except Exception as e:
+        print(f"[RANK_ERROR] {e}", flush=True)
+        if not interaction.response.is_done():
+            await interaction.response.send_message("❌ Erro ao exibir o ranking.", ephemeral=True)
+
+async def setup(bot: commands.Bot):
+    bot.tree.add_command(rank)

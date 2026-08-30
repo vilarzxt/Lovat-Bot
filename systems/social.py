@@ -1,7 +1,7 @@
 import os
 import json
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 DATA_DIR = "data/guilds"
 
