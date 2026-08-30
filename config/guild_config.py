@@ -15,6 +15,7 @@ DEFAULT_GLOBAL_TICKET_SETTINGS = {
 DEFAULT_GUILD_CONFIG = {
     "prefix": "!",
     "log_channel_id": None,
+    "ticket_log_channel_id": None,
     "welcome_channel_id": None,
     "welcome_message": "Seja bem-vindo(a) ao **{server}**, {mention}! Atualmente estamos com **{count}** membros.",
     "goodbye_channel_id": None,
@@ -95,6 +96,9 @@ def _migrate_config(config: dict) -> dict:
 
     if "ticket_panels" not in config:
         config["ticket_panels"] = []
+
+    if "ticket_log_channel_id" not in config:
+        config["ticket_log_channel_id"] = None
 
     # Migração de 'ticket_categories' antigo para um único painel default
     if "ticket_categories" in config and config["ticket_categories"]:
