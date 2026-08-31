@@ -14,6 +14,7 @@ from systems.views import (
     DynamicPanelPublicView
 )
 from commands.config import CaptchaVerifyView, log_action
+from systems.anti_invite import setup_anti_invite
 
 # =========================
 # 🤖 INTENTS
@@ -58,7 +59,21 @@ class BotClient(commands.Bot):
         "commands.kick",
         "commands.ban",
         "commands.lock",
-        "commands.unlock"
+        "commands.unlock",
+        "commands.mute",
+        "commands.unmute",
+        "commands.clear",
+        "commands.historico",
+        "commands.saldo",
+        "commands.daily",
+        "commands.apostar",
+        "commands.raspadinha",
+        "commands.perfil",
+        "commands.rank",
+        "commands.rep",
+        "commands.fun",
+        "commands.utilidades",
+        "commands.musica"
     ]
 
     # =========================
@@ -85,6 +100,12 @@ class BotClient(commands.Bot):
             except Exception as e:
                 print(f"[ERRO] {command}")
                 print(e)
+
+        try:
+            setup_anti_invite(self)
+            print("[OK] systems.anti_invite")
+        except Exception as e:
+            print(f"[ERRO] systems.anti_invite: {e}")
 
     # =========================
     # 🔁 READY EVENT

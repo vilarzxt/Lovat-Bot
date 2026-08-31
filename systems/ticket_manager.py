@@ -18,7 +18,8 @@ from config.assets import (
 
 from config.guild_config import (
     get_panel,
-    get_global_ticket_settings
+    get_global_ticket_settings,
+    get_guild_config
 )
 
 from systems.views import (
@@ -34,6 +35,24 @@ class TicketManager:
     def __init__(self, bot):
         self.bot = bot
         self.transcripts = TranscriptBuilder()
+
+    async def _log_ticket_event(self, guild: discord.Guild, title: str, description: str, color: int):
+        try:
+            cfg = get_guild_config(guild.id)
+            log_ch_id = cfg.get("ticket_log_channel_id")
+            if not log_ch_id:
+                return
+            log_ch = guild.get_channel(log_ch_id)
+            if log_ch:
+                embed = discord.Embed(
+                    title=title,
+                    description=description,
+                    color=color,
+                    timestamp=datetime.datetime.utcnow()
+                )
+                await log_ch.send(embed=embed)
+        except Exception as e:
+            print(f"[TICKET_LOG_EVENT_ERROR] {e}", flush=True)
 
     # =========================
     # 🎫 CREATE TICKET
@@ -153,6 +172,13 @@ class TicketManager:
             view=TicketManagementView()
         )
 
+        await self._log_ticket_event(
+            guild,
+            "🎫 Ticket Criado",
+            f"**Usuário:** {user.mention} (`{user.id}`)\n**Canal:** {ticket_channel.mention}\n**Categoria/Opção:** {category} / {subcategory}",
+            color=0x2ECC71
+        )
+
         return ticket_channel
 
     # =========================
@@ -262,13 +288,12 @@ class TicketManager:
         except Exception as e:
             print(f"[TRANSCRIPT ERROR] {e}", flush=True)
 
-        log_channel = discord.utils.get(
-            guild.channels,
-            name="logs-tickets"
+        await self._log_ticket_event(
+            guild,
+            "🔒 Ticket Fechado",
+            f"**Canal:** `{channel.name}`\n**Fechado por:** {user.mention}\n**Dono do Ticket:** {owner.mention if owner else 'Desconhecido'}\n**Motivo:** {reason}",
+            color=0xE74C3C
         )
-
-        if log_channel:
-            await log_channel.send(embed=embed)
 
         await interaction.response.send_message(
             "🔒 Ticket encerrado com sucesso.\n\nO canal será deletado em breve.",

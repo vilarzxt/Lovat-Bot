@@ -10,7 +10,9 @@ from config.guild_config import (
     update_panel,
     delete_panel,
     get_global_ticket_settings,
-    update_global_ticket_settings
+    update_global_ticket_settings,
+    get_guild_config,
+    update_guild_config
 )
 from systems.permissions import is_ticket_staff
 from systems.utils import create_embed
@@ -890,14 +892,17 @@ class GlobalSettingsView(View):
 
     def get_embed(self) -> discord.Embed:
         glob = get_global_ticket_settings(self.guild_id)
+        cfg = get_guild_config(self.guild_id)
         staff_roles = ", ".join([f"<@&{r}>" for r in glob.get("staff_role_ids", [])]) or "*Nenhum*"
         cat_ch = f"<#{glob.get('ticket_category_channel_id')}>" if glob.get("ticket_category_channel_id") else "*Nenhuma*"
+        tlog_ch = f"<#{cfg.get('ticket_log_channel_id')}>" if cfg.get("ticket_log_channel_id") else "*Não configurado*"
 
         text = (
             "Aqui você pode configurar as configurações globais do sistema de tickets! "
             "Essas configurações serão aplicadas para todos os painéis do servidor.\n\n"
             f"• **Cargos de Staff Global:** {staff_roles}\n"
-            f"• **Categoria de Canal Global:** {cat_ch}"
+            f"• **Categoria de Canal Global:** {cat_ch}\n"
+            f"• **Canal de Logs de Ticket:** {tlog_ch}"
         )
         return create_embed(title="⚙️ Configurações Globais", description=text, color=EMBED_COLOR)
 
@@ -905,6 +910,7 @@ class GlobalSettingsView(View):
         placeholder="Selecione uma categoria para começar...",
         options=[
             discord.SelectOption(label="Funções sobre o Ticket", description="Cargos de suporte e categoria de canal globais", emoji="🛠️", value="functions"),
+            discord.SelectOption(label="Logs de Ticket", description="Canal para logs de criação e fechamento de tickets", emoji="📋", value="logs"),
             discord.SelectOption(label="Funções Premium", description="Recursos adicionais premium", emoji="⭐", value="premium"),
             discord.SelectOption(label="Sistema de IA", description="Atendimento automatizado por IA", emoji="🤖", value="ai")
         ]
@@ -913,6 +919,9 @@ class GlobalSettingsView(View):
         val = select.values[0]
         if val == "functions":
             view = GlobalTicketFunctionsView(self.guild_id)
+            await interaction.response.edit_message(embed=view.get_embed(), view=view)
+        elif val == "logs":
+            view = GlobalTicketLogsView(self.guild_id)
             await interaction.response.edit_message(embed=view.get_embed(), view=view)
         elif val in ["premium", "ai"]:
             embed = create_embed(title="⭐ Em breve", description="Esta funcionalidade estará disponível em atualizações futuras.", color=discord.Color.gold())
@@ -936,7 +945,7 @@ class GlobalTicketFunctionsView(View):
         text = f"⚙️ **Funções Globais sobre o Ticket**\n\n• **Cargos de Staff:** {staff_roles}\n• **Categoria de Destino:** {cat_ch}"
         return create_embed(title="🛠️ Funções Globais do Ticket", description=text, color=EMBED_COLOR)
 
-    @discord.ui.select(cls=RoleSelect, placeholder="Selecione os cargos de Staff Globais...", min_values=0, max_values=5, custom_id="global_staff_roles")
+    @discord.ui.select(cls=RoleSelect, placeholder="Selecione os cargos de Staff Globais...", min_values=0, max_values=25, custom_id="global_staff_roles")
     async def select_staff_roles(self, interaction: discord.Interaction, select: RoleSelect):
         try:
             glob = get_global_ticket_settings(self.guild_id)
@@ -963,6 +972,55 @@ class GlobalTicketFunctionsView(View):
             print(f"[TICKET_SYSTEM] erro ao definir categoria global: {e}", flush=True)
 
     @discord.ui.button(label="< Voltar", style=discord.ButtonStyle.secondary, row=2)
+    async def back(self, interaction: discord.Interaction, button: Button):
+        view = GlobalSettingsView(self.guild_id)
+        await interaction.response.edit_message(embed=view.get_embed(), view=view)
+
+class GlobalTicketLogsView(View):
+    def __init__(self, guild_id: int):
+        super().__init__(timeout=300)
+        self.guild_id = guild_id
+
+    def get_embed(self) -> discord.Embed:
+        cfg = get_guild_config(self.guild_id)
+        ch_str = f"<#{cfg.get('ticket_log_channel_id')}>" if cfg.get("ticket_log_channel_id") else "*Não configurado*"
+        text = f"📋 **Canal de Logs de Tickets**\n\nCanal Atual: {ch_str}\n\nEscolha um canal existente abaixo ou crie um automaticamente para a Staff."
+        return create_embed(title="📋 Logs de Ticket", description=text, color=EMBED_COLOR)
+
+    @discord.ui.select(cls=ChannelSelect, channel_types=[discord.ChannelType.text], placeholder="Selecione o canal de logs de ticket...", min_values=0, max_values=1, row=0)
+    async def select_tlog_ch(self, interaction: discord.Interaction, select: ChannelSelect):
+        try:
+            ch_id = select.values[0].id if select.values else None
+            update_guild_config(self.guild_id, "ticket_log_channel_id", ch_id)
+            await interaction.response.edit_message(embed=self.get_embed(), view=self)
+        except Exception as e:
+            print(f"[TICKET_LOG_SELECT_ERROR] {e}", flush=True)
+
+    @discord.ui.button(label="Criar Canal de Logs Automaticamente", style=discord.ButtonStyle.success, row=1)
+    async def create_auto_log_ch(self, interaction: discord.Interaction, button: Button):
+        try:
+            guild = interaction.guild
+            glob = get_global_ticket_settings(self.guild_id)
+            staff_roles = glob.get("staff_role_ids", [])
+
+            overwrites = {
+                guild.default_role: discord.PermissionOverwrite(view_channel=False)
+            }
+            for rid in staff_roles:
+                role = guild.get_role(rid)
+                if role:
+                    overwrites[role] = discord.PermissionOverwrite(view_channel=True, read_message_history=True)
+
+            ch = await guild.create_text_channel(name="📋-logs-tickets", overwrites=overwrites, reason="Canal de logs de ticket automático")
+            update_guild_config(self.guild_id, "ticket_log_channel_id", ch.id)
+
+            await interaction.response.send_message(f"✅ Canal de logs de tickets criado com sucesso em {ch.mention}!", ephemeral=True)
+            await interaction.edit_original_response(embed=self.get_embed(), view=self)
+        except Exception as e:
+            print(f"[TICKET_LOG_CREATE_ERROR] {e}", flush=True)
+            await interaction.response.send_message("❌ Erro ao criar canal de logs.", ephemeral=True)
+
+    @discord.ui.button(label="< Voltar", style=discord.ButtonStyle.secondary, row=1)
     async def back(self, interaction: discord.Interaction, button: Button):
         view = GlobalSettingsView(self.guild_id)
         await interaction.response.edit_message(embed=view.get_embed(), view=view)
@@ -1075,7 +1133,7 @@ class SelectPanelRolesView(View):
             color=EMBED_COLOR
         )
 
-    @discord.ui.select(cls=RoleSelect, placeholder="Selecione os cargos...", min_values=0, max_values=5)
+    @discord.ui.select(cls=RoleSelect, placeholder="Selecione os cargos...", min_values=0, max_values=25)
     async def select_roles(self, interaction: discord.Interaction, select: RoleSelect):
         try:
             panel = get_panel(self.guild_id, self.panel_id)
