@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from flask import Flask, render_template
 
 from config.assets import ASSETS
@@ -12,6 +13,14 @@ def create_app() -> Flask:
     )
 
     app.secret_key = os.getenv("FLASK_SECRET_KEY", "troque-essa-chave-no-.env")
+
+    # Sessão de login: sem isso, o Flask trata a sessão como "não
+    # permanente" por padrão e o navegador (principalmente no mobile)
+    # pode descartá-la a qualquer refresh/fechada de aba. Com isso,
+    # o login do site fica válido por 30 dias.
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
 
     from webapp.routes_public import public_bp
     from webapp.routes_auth import auth_bp

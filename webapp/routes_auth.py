@@ -33,6 +33,7 @@ def callback():
 
     # Guardamos só o essencial na sessão: id/nome do usuário e o token
     # (necessário pra buscar a lista de servidores depois).
+    session.permanent = True
     session["user"] = {
         "id": user.get("id"),
         "username": user.get("username"),

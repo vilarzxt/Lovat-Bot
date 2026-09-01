@@ -4,15 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Lovat Bot{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="{{ logo_url }}">
 </head>
 <body>
     <nav class="navbar">
-        <a href="{{ url_for('public.home') }}" class="navbar-brand">
-            <img src="{{ logo_url }}" alt="Lovat Bot">
-            <span>Lovat Bot</span>
-        </a>
+        <div class="navbar-row">
+            <a href="{{ url_for('public.home') }}" class="navbar-brand">
+                <img src="{{ logo_url }}" alt="Lovat Bot">
+                <span>Lovat Bot</span>
+            </a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle">
+            <label for="nav-toggle" class="navbar-burger" aria-label="Abrir menu">
+                <span></span><span></span><span></span>
+            </label>
+        </div>
         <div class="navbar-links">
             <a href="{{ url_for('public.home') }}">Início</a>
             <a href="{{ url_for('public.comandos') }}">Comandos</a>
