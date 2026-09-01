@@ -16,10 +16,16 @@ def create_app() -> Flask:
     from webapp.routes_public import public_bp
     from webapp.routes_auth import auth_bp
     from webapp.routes_dashboard import dashboard_bp
+    from webapp.routes_owner import owner_bp, is_owner_session
 
     app.register_blueprint(public_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(owner_bp)
+
+    @app.context_processor
+    def inject_is_owner():
+        return {"is_owner": is_owner_session()}
 
     @app.errorhandler(404)
     def not_found(e):

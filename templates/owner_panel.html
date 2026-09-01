@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Painel Admin</h1>
+    <p>{{ guilds|length }} servidores no total. Use as etiquetas pra organizar e o botão de remover pra tirar o bot de onde não interessa.</p>
+</section>
+
+<section class="owner-guild-list">
+    {% for g in guilds %}
+    <div class="owner-guild-card">
+        <div class="owner-guild-main">
+            {% if g.icon_url %}
+                <img src="{{ g.icon_url }}" alt="{{ g.name }}" class="guild-icon">
+            {% else %}
+                <div class="guild-icon guild-icon--placeholder">{{ g.name[0]|upper }}</div>
+            {% endif %}
+            <div class="owner-guild-info">
+                <span class="guild-name">{{ g.name }}</span>
+                <span class="owner-guild-meta">
+                    ID: {{ g.id }} · {{ g.member_count }} membros · dono: {{ g.owner_name or "desconhecido" }} · entrou em {{ g.joined_at }}
+                </span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('owner.salvar_nota', guild_id=g.id) }}" class="owner-note-form">
+            <select name="tag">
+                {% for key, label in tags.items() %}
+                <option value="{{ key }}" {{ "selected" if key == g.tag else "" }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="note" value="{{ g.note }}" placeholder="Anotação (opcional)" maxlength="200">
+            <button type="submit" class="btn btn-secondary btn-sm">Salvar</button>
+        </form>
+
+        <form method="POST" action="{{ url_for('owner.remover_servidor', guild_id=g.id) }}"
+              onsubmit="return confirm('Tem certeza que quer remover o Lovat Bot de {{ g.name }}? Essa ação não pode ser desfeita.');">
+            <button type="submit" class="btn btn-danger btn-sm">Remover bot deste servidor</button>
+        </form>
+    </div>
+    {% else %}
+    <p class="empty-state">O bot ainda não está em nenhum servidor.</p>
+    {% endfor %}
+</section>
+{% endblock %}

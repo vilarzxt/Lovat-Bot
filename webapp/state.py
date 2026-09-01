@@ -63,3 +63,27 @@ def get_bot_guild(guild_id: int):
     if bot_instance is None:
         return None
     return bot_instance.get_guild(guild_id)
+
+
+def leave_guild(guild_id: int) -> tuple[bool, str]:
+    """
+    Faz o bot sair de um servidor. Chamado a partir da thread do
+    Flask, então precisa agendar a corrotina no event loop do bot
+    (que roda na thread principal) e esperar o resultado.
+    """
+    import asyncio
+
+    guild = get_bot_guild(guild_id)
+    if guild is None:
+        return False, "O bot não está nesse servidor."
+
+    if bot_instance is None or bot_instance.loop is None:
+        return False, "Bot não está pronto."
+
+    try:
+        future = asyncio.run_coroutine_threadsafe(guild.leave(), bot_instance.loop)
+        future.result(timeout=15)
+        return True, f"O bot saiu do servidor '{guild.name}'."
+    except Exception as e:
+        print(f"[LEAVE_GUILD_ERROR] {e}", flush=True)
+        return False, f"Erro ao sair do servidor: {e}"

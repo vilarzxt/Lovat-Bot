@@ -227,4 +227,41 @@ footer {
     border-top: 1px solid var(--border);
 }
 
+/* ===== PAINEL ADMIN (DONO) ===== */
+.owner-guild-list { display: flex; flex-direction: column; gap: 14px; }
+.owner-guild-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.owner-guild-main { display: flex; align-items: center; gap: 14px; }
+.owner-guild-info { display: flex; flex-direction: column; gap: 4px; }
+.owner-guild-meta { color: var(--text-muted); font-size: 0.82rem; }
+.owner-note-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.owner-note-form select,
+.owner-note-form input[type="text"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+}
+.owner-note-form input[type="text"] { flex: 1; min-width: 160px; }
+.btn-danger {
+    background: rgba(231, 76, 60, 0.15);
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    color: #ff8b7a !important;
+}
+.btn-danger:hover { background: rgba(231, 76, 60, 0.25); }
+
 .error-page { text-align: center; padding: 60px 0; }
