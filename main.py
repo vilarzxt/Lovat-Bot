@@ -15,6 +15,7 @@ from systems.views import (
 )
 from commands.config import CaptchaVerifyView, log_action
 from systems.anti_invite import setup_anti_invite
+from webapp import start_flask_app
 
 # =========================
 # 🤖 INTENTS
@@ -287,9 +288,11 @@ class BotClient(commands.Bot):
 # 🚀 STARTUP
 # =========================
 
+bot = BotClient()
+
 async def main():
 
-    async with BotClient() as bot:
+    async with bot:
 
         await bot.start(
             os.getenv("TOKEN")
@@ -298,5 +301,9 @@ async def main():
 # =========================
 # ▶️ RUNTIME
 # =========================
+
+# 🌐 Sobe o dashboard (Flask) em uma thread separada, antes do bot
+# entrar no loop assíncrono. Ambos rodam no mesmo processo.
+start_flask_app(bot)
 
 asyncio.run(main())

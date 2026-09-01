@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ guild_name }} — Painel — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>{{ guild_name }}</h1>
+    <p class="hint">Visualização das configurações atuais. Para editar, use os comandos <code>/config</code> e <code>/ticket-system</code> no Discord.</p>
+</section>
+
+<section class="panel-grid">
+    <div class="panel-card">
+        <h3>📋 Logs</h3>
+        <p><strong>Canal de logs gerais:</strong> {{ log_channel }}</p>
+        <p><strong>Canal de logs de ticket:</strong> {{ ticket_log_channel }}</p>
+    </div>
+
+    <div class="panel-card">
+        <h3>👋 Boas-vindas e despedida</h3>
+        <p><strong>Canal de boas-vindas:</strong> {{ welcome_channel }}</p>
+        <p><strong>Canal de despedida:</strong> {{ goodbye_channel }}</p>
+    </div>
+
+    <div class="panel-card">
+        <h3>🔒 Segurança</h3>
+        <p><strong>Cargo automático:</strong> {{ auto_role }}</p>
+        <p><strong>Captcha ativado:</strong> {{ 'Sim' if captcha_enabled else 'Não' }}</p>
+    </div>
+
+    <div class="panel-card">
+        <h3>🎫 Painéis de ticket</h3>
+        {% if ticket_panels %}
+            <ul>
+                {% for p in ticket_panels %}
+                <li>Painel #{{ p.id }} — {{ p.titulo }} ({{ p.total_opcoes }} opções)</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum painel de ticket configurado ainda.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

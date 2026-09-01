@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Meus Servidores — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Meus Servidores</h1>
+    <p>Servidores onde você é administrador.</p>
+</section>
+
+<section class="guild-list">
+    {% if guilds %}
+        {% for g in guilds %}
+        <div class="guild-card">
+            {% if g.icon_url %}
+                <img src="{{ g.icon_url }}" alt="{{ g.name }}" class="guild-icon">
+            {% else %}
+                <div class="guild-icon guild-icon--placeholder">{{ g.name[0]|upper }}</div>
+            {% endif %}
+            <span class="guild-name">{{ g.name }}</span>
+            {% if g.bot_present %}
+                <a href="{{ url_for('dashboard.painel_servidor', guild_id=g.id) }}" class="btn btn-secondary btn-sm">Gerenciar</a>
+            {% else %}
+                <a href="{{ invite_url }}&guild_id={{ g.id }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Adicionar Lovat</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty-state">Nenhum servidor encontrado onde você seja administrador.</p>
+    {% endif %}
+</section>
+{% endblock %}

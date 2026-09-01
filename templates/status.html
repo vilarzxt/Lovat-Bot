@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Status — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Status</h1>
+</section>
+
+<section class="status-grid">
+    <div class="status-card">
+        <span class="status-label">Estado</span>
+        <span class="status-value {{ 'status-online' if online else 'status-offline' }}">
+            {{ '🟢 Online' if online else '🔴 Offline' }}
+        </span>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Uptime</span>
+        <span class="status-value">{{ uptime }}</span>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Servidores</span>
+        <span class="status-value">{{ guild_count }}</span>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Usuários</span>
+        <span class="status-value">{{ user_count }}</span>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Latência</span>
+        <span class="status-value">{{ latency }} ms</span>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Versão</span>
+        <span class="status-value">{{ version }}</span>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo or 'Erro' }} — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header error-page">
+    <h1>{{ titulo or 'Ops!' }}</h1>
+    <p>{{ mensagem or 'Algo não saiu como esperado.' }}</p>
+    <a href="{{ url_for('public.home') }}" class="btn btn-secondary">Voltar ao início</a>
+</section>
+{% endblock %}

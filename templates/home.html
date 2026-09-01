@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Lovat Bot — Seu servidor, mais completo{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <img src="{{ logo_url }}" alt="Lovat Bot" class="hero-logo">
+    <h1>Lovat Bot</h1>
+    <p class="hero-tagline">Tickets, moderação, economia, social e diversão — tudo em um só bot, pronto pro seu servidor.</p>
+    <div class="hero-actions">
+        <a href="{{ invite_url }}" target="_blank" rel="noopener" class="btn btn-primary">Adicionar ao Discord</a>
+        <a href="{{ url_for('public.comandos') }}" class="btn btn-secondary">Ver Comandos</a>
+    </div>
+    <p class="hero-stats">{{ guild_count }} servidores · {{ user_count }} usuários</p>
+</section>
+
+<section class="features">
+    <div class="feature-card">
+        <span class="feature-icon">🎫</span>
+        <h3>Tickets</h3>
+        <p>Painéis de atendimento configuráveis, com categorias, logs e fechamento automático.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-icon">🛡️</span>
+        <h3>Moderação</h3>
+        <p>Ban, kick, warn, mute, clear e histórico completo de punições por usuário.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-icon">💰</span>
+        <h3>Economia</h3>
+        <p>Moeda própria, recompensa diária, apostas e raspadinha.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-icon">👤</span>
+        <h3>Social</h3>
+        <p>Perfis, XP, ranking e sistema de reputação entre membros.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-icon">🎉</span>
+        <h3>Diversão</h3>
+        <p>Enquetes, 8ball, ship, dado e outros comandos pra descontrair.</p>
+    </div>
+    <div class="feature-card">
+        <span class="feature-icon">🧰</span>
+        <h3>Utilidades</h3>
+        <p>Informações de servidor/usuário, calculadora, lembretes e mais.</p>
+    </div>
+</section>
+{% endblock %}

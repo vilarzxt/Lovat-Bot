@@ -1,4 +1,6 @@
 discord.py
 python-dotenv
 psutil
+flask
+requests
 # discord.py[voice]  # Descomentar para suporte futuro a áudio/música

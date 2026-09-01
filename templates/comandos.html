@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Comandos — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Comandos</h1>
+    <p>{{ total_commands }} comandos disponíveis, organizados por categoria.</p>
+    <input type="text" id="command-search" class="search-input" placeholder="Buscar comando...">
+</section>
+
+<section class="command-categories">
+    {% for cat in categories %}
+    <div class="command-category" id="cat-{{ cat.id }}">
+        <h2>{{ cat.label }}</h2>
+        <ul class="command-list">
+            {% for cmd in cat.commands %}
+            <li class="command-item" data-name="{{ cmd.name|lower }}">
+                <code>/{{ cmd.name }}</code>
+                <span class="command-desc">{{ cmd.description }}</span>
+                {% if cmd.admin %}<span class="badge badge-admin">Requer Admin</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</section>
+
+<script>
+document.getElementById('command-search').addEventListener('input', function (e) {
+    const term = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('.command-item').forEach(function (item) {
+        item.style.display = item.dataset.name.includes(term) ? '' : 'none';
+    });
+    document.querySelectorAll('.command-category').forEach(function (cat) {
+        const visible = cat.querySelectorAll('.command-item:not([style*="display: none"])').length;
+        cat.style.display = visible ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

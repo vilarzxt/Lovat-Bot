@@ -1,0 +1,55 @@
+import os
+from flask import Flask, render_template
+
+from config.assets import ASSETS
+
+
+def create_app() -> Flask:
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(os.path.dirname(__file__), "..", "templates"),
+        static_folder=os.path.join(os.path.dirname(__file__), "..", "static"),
+    )
+
+    app.secret_key = os.getenv("FLASK_SECRET_KEY", "troque-essa-chave-no-.env")
+
+    from webapp.routes_public import public_bp
+    from webapp.routes_auth import auth_bp
+    from webapp.routes_dashboard import dashboard_bp
+
+    app.register_blueprint(public_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(dashboard_bp)
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template(
+            "erro.html",
+            logo_url=ASSETS["logo"],
+            titulo="Página não encontrada",
+            mensagem="Essa página não existe ou foi movida.",
+        ), 404
+
+    return app
+
+
+def start_flask_app(bot, host="0.0.0.0"):
+    """
+    Sobe o servidor Flask em uma thread separada, sem bloquear o
+    event loop do bot (que roda via asyncio na thread principal).
+    """
+    import threading
+    from webapp import state
+
+    state.register_bot(bot)
+
+    app = create_app()
+    port = int(os.getenv("PORT", 5000))
+
+    thread = threading.Thread(
+        target=lambda: app.run(host=host, port=port, use_reloader=False),
+        daemon=True,
+    )
+    thread.start()
+
+    print(f"🌐 DASHBOARD RODANDO EM http://{host}:{port}", flush=True)

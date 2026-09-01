@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lovat Bot{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="{{ logo_url }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('public.home') }}" class="navbar-brand">
+            <img src="{{ logo_url }}" alt="Lovat Bot">
+            <span>Lovat Bot</span>
+        </a>
+        <div class="navbar-links">
+            <a href="{{ url_for('public.home') }}">Início</a>
+            <a href="{{ url_for('public.comandos') }}">Comandos</a>
+            <a href="{{ url_for('public.status') }}">Status</a>
+            {% if session.get('user') %}
+                <a href="{{ url_for('dashboard.meus_servidores') }}">Meus Servidores</a>
+                <a href="{{ url_for('auth.logout') }}" class="navbar-cta navbar-cta--ghost">Sair</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="navbar-cta">Entrar com Discord</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for msg in messages %}
+                        <div class="flash">{{ msg }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Lovat Bot — by Bielzxtzn</p>
+    </footer>
+</body>
+</html>
