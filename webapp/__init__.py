@@ -36,6 +36,16 @@ def create_app() -> Flask:
     def inject_is_owner():
         return {"is_owner": is_owner_session()}
 
+    # Cache-buster: muda a cada reinício do processo (cada redeploy),
+    # forçando o navegador a buscar o CSS/JS mais recente em vez de
+    # servir uma versão antiga guardada em cache.
+    import time
+    asset_version = str(int(time.time()))
+
+    @app.context_processor
+    def inject_asset_version():
+        return {"asset_version": asset_version}
+
     @app.errorhandler(404)
     def not_found(e):
         return render_template(
