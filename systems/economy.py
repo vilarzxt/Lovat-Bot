@@ -58,6 +58,16 @@ def remove_saldo(guild_id: int, user_id: int, valor: int) -> bool:
     save_economy(guild_id, econ)
     return True
 
+def set_saldo(guild_id: int, user_id: int, valor: int) -> int:
+    econ = load_economy(guild_id)
+    str_id = str(user_id)
+    user_data = econ.get(str_id, {"saldo": 0, "ultimo_daily": None})
+    user_data["saldo"] = max(0, valor)
+    econ[str_id] = user_data
+    save_economy(guild_id, econ)
+    return user_data["saldo"]
+
+
 def get_ultimo_daily(guild_id: int, user_id: int) -> str | None:
     return get_user_data(guild_id, user_id).get("ultimo_daily")
 

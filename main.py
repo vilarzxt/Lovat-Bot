@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import os
 import asyncio
@@ -15,6 +16,7 @@ from systems.views import (
 )
 from commands.config import CaptchaVerifyView, log_action
 from systems.anti_invite import setup_anti_invite
+from systems.command_usage import log_command_use
 from webapp import start_flask_app
 
 # =========================
@@ -29,6 +31,29 @@ intents.message_content = True
 # 🤖 BOT CORE
 # =========================
 
+# =========================
+# 📊 ÁRVORE DE COMANDOS COM LOG DE USO
+#
+# Toda vez que qualquer slash command é usado, registra quem usou
+# antes de rodar o comando de verdade. interaction_check só bloqueia
+# se retornar False, então aqui sempre retorna True — é só um "hook"
+# de passagem, não uma permissão.
+# =========================
+
+class LoggingCommandTree(app_commands.CommandTree):
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        try:
+            if interaction.type == discord.InteractionType.application_command and interaction.command:
+                log_command_use(
+                    interaction.guild_id,
+                    interaction.user.id,
+                    interaction.command.qualified_name,
+                )
+        except Exception as e:
+            print(f"[COMMAND_USAGE_LOG_ERROR] {e}", flush=True)
+        return True
+
+
 class BotClient(commands.Bot):
 
     def __init__(self):
@@ -36,7 +61,8 @@ class BotClient(commands.Bot):
         super().__init__(
             command_prefix=PREFIX,
             intents=intents,
-            help_command=None
+            help_command=None,
+            tree_cls=LoggingCommandTree
         )
 
         self.auto_close_manager = None
@@ -66,6 +92,7 @@ class BotClient(commands.Bot):
         "commands.clear",
         "commands.historico",
         "commands.saldo",
+        "commands.admin_economia",
         "commands.daily",
         "commands.apostar",
         "commands.raspadinha",

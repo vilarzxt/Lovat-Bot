@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Usuários — Painel Admin — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Usuários</h1>
+    <p>
+        {{ total_pessoas }} pessoas realmente usaram algum comando do Lovat, em qualquer um dos
+        servidores. Isso é diferente do "usuários" da Home/Status, que soma todo mundo que está
+        nos servidores, mesmo quem nunca usou o bot.
+    </p>
+</section>
+
+<section class="owner-guild-list">
+    {% for u in users %}
+    <div class="owner-guild-card">
+        <div class="owner-guild-main">
+            {% if u.avatar_url %}
+                <img src="{{ u.avatar_url }}" alt="{{ u.name }}" class="guild-icon">
+            {% else %}
+                <div class="guild-icon guild-icon--placeholder">?</div>
+            {% endif %}
+            <div class="owner-guild-info">
+                <span class="guild-name">
+                    {{ u.name }}
+                    {% if u.is_bot %}<span class="owner-guild-tag">🤖 Bot</span>{% endif %}
+                </span>
+                <span class="owner-guild-meta">
+                    {{ u.total_usos }} comandos usados
+                    {% if u.top_commands %}
+                        · mais usados: {% for cmd, count in u.top_commands %}/{{ cmd }} ({{ count }}){% if not loop.last %}, {% endif %}{% endfor %}
+                    {% endif %}
+                    · em: {{ u.guilds|unique|join(", ") }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="empty-state">Ninguém usou nenhum comando ainda.</p>
+    {% endfor %}
+</section>
+{% endblock %}

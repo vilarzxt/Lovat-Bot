@@ -67,6 +67,17 @@ def add_xp(guild_id: int, user_id: int, xp_amount: int) -> tuple[int, bool]:
     leveled_up = new_lvl > old_lvl
     return new_lvl, leveled_up
 
+def set_xp(guild_id: int, user_id: int, xp_amount: int) -> int:
+    soc = load_social(guild_id)
+    str_id = str(user_id)
+    user_data = get_user_social(guild_id, user_id)
+    user_data["xp"] = max(0, xp_amount)
+    user_data["nivel"] = calc_level(user_data["xp"])
+    soc[str_id] = user_data
+    save_social(guild_id, soc)
+    return user_data["nivel"]
+
+
 def set_bio(guild_id: int, user_id: int, bio_text: str):
     soc = load_social(guild_id)
     str_id = str(user_id)

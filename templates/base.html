@@ -30,6 +30,7 @@
                 <a href="{{ url_for('dashboard.meus_servidores') }}">Meus Servidores</a>
                 {% if is_owner %}
                     <a href="{{ url_for('owner.painel_admin') }}">Painel Admin</a>
+                    <a href="{{ url_for('owner.painel_usuarios') }}">Usuários</a>
                 {% endif %}
                 <a href="{{ url_for('auth.logout') }}" class="navbar-cta navbar-cta--ghost">Sair</a>
             {% else %}
