@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from config.assets import EMBED_COLOR
+from config.bot_settings import is_system_enabled
 from systems.utils import create_embed
 from systems.economy import get_saldo
 
@@ -15,6 +16,12 @@ async def saldo(
     interaction: discord.Interaction,
     usuario: discord.Member = None
 ):
+    if not is_system_enabled("economia"):
+        return await interaction.response.send_message(
+            "⚠️ Esse sistema está temporariamente desativado pelo administrador do bot.",
+            ephemeral=True
+        )
+
     try:
         target = usuario or interaction.user
         val = get_saldo(interaction.guild_id, target.id)

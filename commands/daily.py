@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from config.assets import EMBED_COLOR
+from config.bot_settings import is_system_enabled
 from systems.utils import create_embed
 from systems.economy import get_ultimo_daily, set_ultimo_daily, add_saldo
 
@@ -14,6 +15,12 @@ DAILY_REWARD = 100
     description="Resgate sua recompensa diária de moedas"
 )
 async def daily(interaction: discord.Interaction):
+    if not is_system_enabled("economia"):
+        return await interaction.response.send_message(
+            "⚠️ Esse sistema está temporariamente desativado pelo administrador do bot.",
+            ephemeral=True
+        )
+
     try:
         guild_id = interaction.guild_id
         user_id = interaction.user.id

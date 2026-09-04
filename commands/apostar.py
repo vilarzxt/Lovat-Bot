@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from config.assets import EMBED_COLOR
+from config.bot_settings import is_system_enabled
 from systems.utils import create_embed
 from systems.economy import get_saldo, add_saldo, remove_saldo
 
@@ -16,6 +17,12 @@ async def apostar(
     interaction: discord.Interaction,
     valor: int
 ):
+    if not is_system_enabled("economia"):
+        return await interaction.response.send_message(
+            "⚠️ Esse sistema está temporariamente desativado pelo administrador do bot.",
+            ephemeral=True
+        )
+
     try:
         if valor <= 0:
             return await interaction.response.send_message("❌ O valor da aposta deve ser maior que 0.", ephemeral=True)

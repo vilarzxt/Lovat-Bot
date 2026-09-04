@@ -32,6 +32,25 @@ def save_social(guild_id: int, data: dict):
 def calc_level(xp: int) -> int:
     return int((xp / 50) ** 0.5) + 1
 
+def xp_progress(xp: int) -> tuple[int, int, float]:
+    """
+    Calcula o progresso de XP do nível atual em direção ao próximo.
+    Retorna (xp_atual_no_nivel, xp_necessario_para_proximo_nivel, percentual).
+    """
+    xp = max(0, xp)
+    lvl = calc_level(xp)
+    xp_start_level = 50 * ((lvl - 1) ** 2)
+    xp_next_level = 50 * (lvl ** 2)
+
+    xp_needed = xp_next_level - xp_start_level
+    current_in_level = xp - xp_start_level
+    if xp_needed <= 0:
+        percentual = 100.0
+    else:
+        percentual = min(100.0, max(0.0, (current_in_level / xp_needed) * 100.0))
+
+    return current_in_level, xp_needed, percentual
+
 def get_user_social(guild_id: int, user_id: int) -> dict:
     soc = load_social(guild_id)
     str_id = str(user_id)
