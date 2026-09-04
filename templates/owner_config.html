@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Configurações Globais — Painel Admin — Lovat Bot{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <h1>Configurações Globais</h1>
+    <p>Ajuste os textos padrão e controle quais sistemas estão ativos em todos os servidores onde o bot opera.</p>
+</section>
+
+<section class="owner-guild-list">
+    <form method="POST" action="{{ url_for('owner.salvar_configuracoes') }}">
+        <!-- Sistemas Ativos -->
+        <div class="owner-guild-card" style="display: block; margin-bottom: 24px;">
+            <div style="margin-bottom: 16px;">
+                <h2 style="font-size: 1.25rem; margin-bottom: 8px;">🔌 Ativação de Sistemas</h2>
+                <p style="font-size: 0.9rem; color: #a0a0a0;">Desmarque para pausar temporariamente a execução de comandos do sistema correspondente.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px;">
+                {% set labels = {
+                    'economia': '💰 Economia',
+                    'musica': '🎵 Música',
+                    'tickets': '🎫 Tickets',
+                    'moderacao': '🛡️ Moderação',
+                    'social': '👥 Social',
+                    'diversao': '🎲 Diversão',
+                    'utilidades': '🧰 Utilidades'
+                } %}
+                {% for key, val in sistemas.items() %}
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.03);">
+                    <input type="checkbox" name="sistema_{{ key }}" value="1" {{ 'checked' if val else '' }} style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: 500;">{{ labels.get(key, key|capitalize) }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Mensagens Padrão -->
+        <div class="owner-guild-card" style="display: block; margin-bottom: 24px;">
+            <div style="margin-bottom: 16px;">
+                <h2 style="font-size: 1.25rem; margin-bottom: 8px;">📝 Mensagens e Textos Padrão</h2>
+                <p style="font-size: 0.9rem; color: #a0a0a0;">Textos globais pré-configurados do bot.</p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Mensagem de Boas-vindas Padrão</label>
+                    <input type="text" name="msg_boas_vindas" value="{{ mensagens.get('boas_vindas_padrao', '') }}" class="field-control" style="width: 100%;" required>
+                    <small style="color: #888;">Variáveis suportadas: {usuario}, {server}, {count}</small>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Mensagem de Despedida Padrão</label>
+                    <input type="text" name="msg_despedida" value="{{ mensagens.get('despedida_padrao', '') }}" class="field-control" style="width: 100%;" required>
+                    <small style="color: #888;">Variáveis suportadas: {usuario}, {server}</small>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Mensagem de Erro Genérica</label>
+                    <input type="text" name="msg_erro" value="{{ mensagens.get('erro_generico', '') }}" class="field-control" style="width: 100%;" required>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Rodapé Padrão dos Embeds</label>
+                    <input type="text" name="msg_rodape" value="{{ mensagens.get('rodape_padrao', '') }}" class="field-control" style="width: 100%;" required>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
