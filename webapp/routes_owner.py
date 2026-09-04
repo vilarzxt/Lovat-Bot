@@ -7,7 +7,7 @@ from webapp import state
 from config.assets import ASSETS
 from config.owner_notes import get_note, set_note, TAGS
 from config.bot_settings import get_bot_settings, update_bot_setting
-from systems.command_usage import get_all_users_usage
+from systems.command_usage import load_usage
 
 owner_bp = Blueprint("owner", __name__)
 
@@ -66,6 +66,7 @@ def painel_admin():
 
     return render_template(
         "owner_panel.html",
+        logo_url=ASSETS["logo"],
         guilds=guilds_data,
         tags=TAGS,
     )
@@ -95,11 +96,51 @@ def remover_servidor(guild_id: int):
 @owner_bp.route("/painel-admin/usuarios")
 @owner_required
 def painel_usuarios():
-    users_data = get_all_users_usage()
+    bot = state.get_bot()
+    users_map = {}
+
+    if bot is not None:
+        for guild in bot.guilds:
+            usage = load_usage(guild.id)
+
+            for uid_str, data in usage.items():
+                uid = int(uid_str)
+                member = guild.get_member(uid)
+
+                entry = users_map.setdefault(uid, {
+                    "id": uid,
+                    "name": str(member) if member else f"Usuário {uid} (saiu do servidor)",
+                    "avatar_url": member.display_avatar.url if member else None,
+                    "is_bot": member.bot if member else False,
+                    "guilds": [],
+                    "commands": {},
+                    "total_usos": 0,
+                    "last_used": None,
+                })
+                entry["guilds"].append(guild.name)
+                for cmd_name, count in data.get("commands", {}).items():
+                    entry["commands"][cmd_name] = entry["commands"].get(cmd_name, 0) + count
+                    entry["total_usos"] += count
+                if data.get("last_used") and (
+                    entry["last_used"] is None or data["last_used"] > entry["last_used"]
+                ):
+                    entry["last_used"] = data["last_used"]
+
+    users_list = list(users_map.values())
+    for u in users_list:
+        u["top_commands"] = sorted(u["commands"].items(), key=lambda x: -x[1])[:3]
+
+    users_list.sort(key=lambda u: (u["is_bot"], -u["total_usos"], u["name"].lower()))
+
+    total_pessoas = sum(1 for u in users_list if not u["is_bot"])
+    total_bots = sum(1 for u in users_list if u["is_bot"])
+
     return render_template(
         "owner_users.html",
-        users=users_data,
-        total_pessoas=len(users_data),
+        logo_url=ASSETS["logo"],
+        users=users_list,
+        total_pessoas=total_pessoas,
+        total_bots=total_bots,
     )
 
 
@@ -111,6 +152,7 @@ def painel_configuracoes():
     sistemas = settings.get("sistemas_ativos", {})
     return render_template(
         "owner_config.html",
+        logo_url=ASSETS["logo"],
         mensagens=mensagens,
         sistemas=sistemas,
     )
